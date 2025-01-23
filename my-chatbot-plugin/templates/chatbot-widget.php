@@ -14,7 +14,7 @@ defined('ABSPATH') or die('Direct access not allowed');
             <img src="https://www.memoiric.com/wp-content/uploads/2024/04/Logo-03.png" alt="Memoiric Logo" class="chat-logo">
             <div class="header-text">
                 <h3><?php echo esc_html($this->settings['welcome_message']); ?></h3>
-                <p><?php echo esc_html($this->settings['status_message']); ?></p>
+                <p><span class="status-dot"></span> Ready to chat</p>
             </div>
         </div>
         <div class="controls">

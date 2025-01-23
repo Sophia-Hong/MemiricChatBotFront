@@ -108,6 +108,30 @@ class MemoiricChatbot {
             'memoiric-chatbot',
             'memoiric_chatbot_main'
         );
+
+        add_settings_field(
+            'bot_name',
+            'Bot Name',
+            [$this, 'render_bot_name_field'],
+            'memoiric-chatbot',
+            'memoiric_chatbot_main'
+        );
+
+        add_settings_field(
+            'welcome_message',
+            'Welcome Message',
+            [$this, 'render_welcome_message_field'],
+            'memoiric-chatbot',
+            'memoiric_chatbot_main'
+        );
+
+        add_settings_field(
+            'status_message',
+            'Status Message',
+            [$this, 'render_status_message_field'],
+            'memoiric-chatbot',
+            'memoiric_chatbot_main'
+        );
     }
 
     public function render_settings_page() {
@@ -117,6 +141,21 @@ class MemoiricChatbot {
     public function render_webhook_url_field() {
         $webhook_url = isset($this->settings['webhook_url']) ? $this->settings['webhook_url'] : '';
         echo '<input type="url" name="memoiric_chatbot_settings[webhook_url]" value="' . esc_attr($webhook_url) . '" class="regular-text">';
+    }
+
+    public function render_bot_name_field() {
+        $bot_name = isset($this->settings['bot_name']) ? $this->settings['bot_name'] : 'Moir';
+        echo '<input type="text" name="memoiric_chatbot_settings[bot_name]" value="' . esc_attr($bot_name) . '" class="regular-text">';
+    }
+
+    public function render_welcome_message_field() {
+        $welcome_message = isset($this->settings['welcome_message']) ? $this->settings['welcome_message'] : 'Hi, I\'m Moir! 👋';
+        echo '<input type="text" name="memoiric_chatbot_settings[welcome_message]" value="' . esc_attr($welcome_message) . '" class="regular-text">';
+    }
+
+    public function render_status_message_field() {
+        $status_message = isset($this->settings['status_message']) ? $this->settings['status_message'] : 'Online & Ready to Chat';
+        echo '<input type="text" name="memoiric_chatbot_settings[status_message]" value="' . esc_attr($status_message) . '" class="regular-text">';
     }
 }
 

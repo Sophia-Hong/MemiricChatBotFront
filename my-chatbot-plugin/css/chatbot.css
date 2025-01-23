@@ -18,6 +18,7 @@
     bottom: 24px;
     right: 24px;
     width: 380px;
+    height: 600px;
     background: var(--background-color);
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
@@ -25,10 +26,15 @@
     flex-direction: column;
     font-family: var(--font-family);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    max-height: 600px;
     z-index: 999999;
     border: 1px solid var(--border-color);
     letter-spacing: -0.01em;
+}
+
+.my-chatbot-widget.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .chat-header {
@@ -73,6 +79,21 @@
     color: var(--text-secondary);
     font-family: var(--font-family);
     font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #34C759;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.offline {
+    background-color: #FF3B30;
 }
 
 .controls {
@@ -132,8 +153,10 @@
     font-size: 15px;
     line-height: 1.4;
     word-wrap: break-word;
-    white-space: pre-wrap;
+    white-space: normal;
     font-family: var(--font-family);
+    max-width: 80%;
+    overflow-wrap: break-word;
 }
 
 .message.user .message-content {
@@ -146,6 +169,7 @@
     background: var(--message-bg-bot);
     color: var(--text-primary);
     border-radius: 16px 16px 16px 4px;
+    text-align: left;
 }
 
 .message-timestamp {
@@ -345,41 +369,36 @@
     bottom: 24px;
     right: 24px;
     background: var(--primary-color);
-    border-radius: 100px;
+    border-radius: 40px;
     padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(123, 104, 238, 0.25);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease;
     z-index: 999998;
+}
+
+.chat-trigger.hidden {
+    display: none;
 }
 
 .chat-trigger:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(123, 104, 238, 0.3);
 }
 
-.trigger-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.trigger-logo {
+.chat-trigger .trigger-logo {
     width: 24px;
     height: 24px;
-    object-fit: contain;
-    border-radius: 4px;
+    border-radius: 50%;
 }
 
-.trigger-content span {
+.chat-trigger span {
     color: white;
     font-family: var(--font-family);
     font-size: 15px;
     font-weight: 500;
-}
-
-.my-chatbot-widget.hidden {
-    display: none;
 }
 
 /* Mobile Responsiveness */
