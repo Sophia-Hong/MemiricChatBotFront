@@ -41,43 +41,22 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.chat-title {
+.header-content {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.avatar {
-    width: 40px;
-    height: 40px;
-    background: var(--message-bg-bot);
-    border-radius: 50%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.avatar img {
+.chat-logo {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.status-dot {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 8px;
-    height: 8px;
-    background: var(--success-color);
-    border-radius: 50%;
-    border: 2px solid var(--background-color);
+    object-fit: contain;
+    border-radius: 6px;
 }
 
 .header-text {
-    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
 }
 
 .header-text h3 {

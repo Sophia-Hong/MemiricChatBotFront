@@ -3,11 +3,8 @@ if (!defined('ABSPATH')) exit;
 ?>
 <div id="memoiric-chatbot-widget" class="my-chatbot-widget">
     <div class="chat-header">
-        <div class="chat-title">
-            <div class="avatar">
-                <img src="<?php echo MY_CHATBOT_PLUGIN_URL; ?>assets/moir-avatar.png" alt="<?php echo esc_attr($this->settings['bot_name']); ?>">
-                <div class="status-dot"></div>
-            </div>
+        <div class="header-content">
+            <img src="https://www.memoiric.com/wp-content/uploads/2024/04/Logo-03.png" alt="Memoiric Logo" class="chat-logo">
             <div class="header-text">
                 <h3><?php echo esc_html($this->settings['welcome_message']); ?></h3>
                 <p><?php echo esc_html($this->settings['status_message']); ?></p>
