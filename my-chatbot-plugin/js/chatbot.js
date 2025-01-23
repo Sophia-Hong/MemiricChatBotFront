@@ -2,6 +2,7 @@ jQuery(document).ready(function($) {
     class MemoiricChatbot {
         constructor() {
             this.chatWidget = $('#memoiric-chatbot-widget');
+            this.chatTrigger = $('#memoiric-chat-trigger');
             this.chatMessages = $('.chat-messages');
             this.chatInput = $('.chat-input input');
             this.sendButton = $('.send-btn');
@@ -23,6 +24,7 @@ jQuery(document).ready(function($) {
         }
 
         initializeEventListeners() {
+            this.chatTrigger.on('click', () => this.openChat());
             this.minimizeBtn.on('click', () => this.toggleMinimize());
             this.closeBtn.on('click', () => this.closeChat());
             this.sendButton.on('click', () => this.handleSendMessage());
@@ -53,18 +55,30 @@ jQuery(document).ready(function($) {
             });
         }
 
-        toggleMinimize() {
-            this.chatWidget.toggleClass('minimized');
-            this.minimizeBtn.text(this.chatWidget.hasClass('minimized') ? '□' : '─');
-            if (!this.chatWidget.hasClass('minimized')) {
-                this.adjustMessageContainer();
-                this.scrollToBottom();
-            }
+        openChat() {
+            this.chatWidget.removeClass('hidden');
+            this.chatTrigger.addClass('hidden');
+            this.chatInput.focus();
+            this.scrollToBottom();
             this.saveState();
         }
 
         closeChat() {
-            this.chatWidget.hide();
+            this.chatWidget.addClass('hidden');
+            this.chatTrigger.removeClass('hidden');
+            this.saveState();
+        }
+
+        toggleMinimize() {
+            if (this.chatWidget.hasClass('minimized')) {
+                this.chatWidget.removeClass('minimized');
+                this.minimizeBtn.text('─');
+                this.adjustMessageContainer();
+                this.scrollToBottom();
+            } else {
+                this.chatWidget.addClass('minimized');
+                this.minimizeBtn.text('□');
+            }
             this.saveState();
         }
 
@@ -243,7 +257,7 @@ jQuery(document).ready(function($) {
         saveState() {
             localStorage.setItem('memoiricChatState', JSON.stringify({
                 minimized: this.chatWidget.hasClass('minimized'),
-                hidden: this.chatWidget.is(':hidden')
+                hidden: this.chatWidget.hasClass('hidden')
             }));
         }
 
@@ -256,7 +270,11 @@ jQuery(document).ready(function($) {
                     this.minimizeBtn.text('□');
                 }
                 if (savedState.hidden) {
-                    this.chatWidget.hide();
+                    this.chatWidget.addClass('hidden');
+                    this.chatTrigger.removeClass('hidden');
+                } else {
+                    this.chatWidget.removeClass('hidden');
+                    this.chatTrigger.addClass('hidden');
                 }
             }
         }
