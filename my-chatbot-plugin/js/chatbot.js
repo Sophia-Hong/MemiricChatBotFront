@@ -17,15 +17,18 @@ jQuery(document).ready(function($) {
             
             this.initializeEventListeners();
             this.loadChatHistory();
-            this.loadState();
             
-            // Set initial focus to input
-            setTimeout(() => this.chatInput.focus(), 500);
+            // Set initial focus to input when chat opens
+            setTimeout(() => {
+                if (!this.chatWidget.hasClass('hidden')) {
+                    this.chatInput.focus();
+                }
+            }, 500);
         }
 
         initializeEventListeners() {
             this.chatTrigger.on('click', () => this.openChat());
-            this.minimizeBtn.on('click', () => this.toggleMinimize());
+            this.minimizeBtn.on('click', () => this.closeChat());
             this.closeBtn.on('click', () => this.closeChat());
             this.sendButton.on('click', () => this.handleSendMessage());
             this.chatInput.on('keypress', (e) => this.handleKeyPress(e));
@@ -37,6 +40,18 @@ jQuery(document).ready(function($) {
 
             // Adjust message container on window resize
             $(window).on('resize', () => this.adjustMessageContainer());
+        }
+
+        openChat() {
+            this.chatWidget.removeClass('hidden');
+            this.chatTrigger.addClass('hidden');
+            this.chatInput.focus();
+            this.scrollToBottom();
+        }
+
+        closeChat() {
+            this.chatWidget.addClass('hidden');
+            this.chatTrigger.removeClass('hidden');
         }
 
         adjustMessageContainer() {
@@ -53,33 +68,6 @@ jQuery(document).ready(function($) {
                 
                 content.css('max-width', maxWidth + 'px');
             });
-        }
-
-        openChat() {
-            this.chatWidget.removeClass('hidden');
-            this.chatTrigger.addClass('hidden');
-            this.chatInput.focus();
-            this.scrollToBottom();
-            this.saveState();
-        }
-
-        closeChat() {
-            this.chatWidget.addClass('hidden');
-            this.chatTrigger.removeClass('hidden');
-            this.saveState();
-        }
-
-        toggleMinimize() {
-            if (this.chatWidget.hasClass('minimized')) {
-                this.chatWidget.removeClass('minimized');
-                this.minimizeBtn.text('─');
-                this.adjustMessageContainer();
-                this.scrollToBottom();
-            } else {
-                this.chatWidget.addClass('minimized');
-                this.minimizeBtn.text('□');
-            }
-            this.saveState();
         }
 
         updateCharCounter() {
@@ -251,31 +239,6 @@ jQuery(document).ready(function($) {
                 });
                 this.adjustMessageContainer();
                 this.scrollToBottom();
-            }
-        }
-
-        saveState() {
-            localStorage.setItem('memoiricChatState', JSON.stringify({
-                minimized: this.chatWidget.hasClass('minimized'),
-                hidden: this.chatWidget.hasClass('hidden')
-            }));
-        }
-
-        loadState() {
-            const state = localStorage.getItem('memoiricChatState');
-            if (state) {
-                const savedState = JSON.parse(state);
-                if (savedState.minimized) {
-                    this.chatWidget.addClass('minimized');
-                    this.minimizeBtn.text('□');
-                }
-                if (savedState.hidden) {
-                    this.chatWidget.addClass('hidden');
-                    this.chatTrigger.removeClass('hidden');
-                } else {
-                    this.chatWidget.removeClass('hidden');
-                    this.chatTrigger.addClass('hidden');
-                }
             }
         }
     }
