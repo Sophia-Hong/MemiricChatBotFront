@@ -444,28 +444,33 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 9999;
+    background: var(--message-bg-user);
+    color: white;
+    border-radius: 24px;
+    padding: 10px 20px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    background: transparent;
-    padding: 0;
-    width: 60px;
-    height: 60px;
-}
-
-.trigger-content {
-    position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    z-index: 999998;
+    font-family: var(--font-family);
 }
 
-.trigger-logo {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
+.chat-trigger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.trigger-text {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.trigger-icon {
+    font-size: 18px;
+    line-height: 1;
 }
 
 .chat-bubble {
@@ -495,12 +500,67 @@
     transform: rotate(45deg);
 }
 
-.chat-trigger:hover {
-    transform: scale(1.02);
-}
-
 .chat-trigger.hidden {
     display: none;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+    .chat-trigger {
+        bottom: 15px;
+        right: 15px;
+        padding: 8px 16px;
+    }
+
+    .trigger-text {
+        font-size: 14px;
+    }
+
+    .trigger-icon {
+        font-size: 16px;
+    }
+
+    .my-chatbot-widget {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    .chat-header {
+        border-radius: 0;
+    }
+
+    .chat-messages {
+        height: calc(100% - 120px);
+    }
+
+    .chat-input {
+        border-radius: 20px;
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+}
+
+/* Small Mobile Devices */
+@media screen and (max-width: 480px) {
+    .chat-trigger {
+        padding: 8px 14px;
+    }
+
+    .message-content {
+        max-width: 85%;
+        font-size: 14.5px;
+        padding: 10px 14px;
+    }
+
+    .predefined-message {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
 }
 
 /* Mobile Responsiveness */

@@ -2,10 +2,8 @@
 defined('ABSPATH') or die('Direct access not allowed');
 ?>
 <div id="memoiric-chat-trigger" class="chat-trigger">
-    <div class="trigger-content">
-        <img src="https://www.memoiric.com/wp-content/uploads/2024/04/Logo-03.png" alt="Memoiric Chat" class="trigger-logo">
-        <div class="chat-bubble">Hi!</div>
-    </div>
+    <span class="trigger-text">Chat</span>
+    <span class="trigger-icon">💬</span>
 </div>
 
 <div id="memoiric-chatbot-widget" class="my-chatbot-widget hidden">
@@ -29,7 +27,7 @@ defined('ABSPATH') or die('Direct access not allowed');
     <div class="chat-messages" aria-live="polite">
         <div class="message bot">
             <div class="message-content">
-                Hi! I'm here to help you with your photography needs. How can I assist you today?
+                Hi, I'm Moir! Welcome to Memoiric - where we turn your precious memories into beautiful mosaics. How can I help you today?
             </div>
             <div class="message-timestamp">Just now</div>
         </div>

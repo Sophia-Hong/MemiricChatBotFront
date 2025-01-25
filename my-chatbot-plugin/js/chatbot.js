@@ -1,6 +1,14 @@
 jQuery(document).ready(function($) {
     class MemoiricChatbot {
         constructor() {
+            this.sessionId = this.getOrCreateSessionId();
+            this.conversationStartTime = new Date().toISOString();
+            this.messageCount = 0;
+            this.userInfo = {
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                referrer: document.referrer
+            };
             this.chatWidget = $('#memoiric-chatbot-widget');
             this.chatTrigger = $('#memoiric-chat-trigger');
             this.chatMessages = $('.chat-messages');
@@ -24,6 +32,15 @@ jQuery(document).ready(function($) {
                     this.chatInput.focus();
                 }
             }, 500);
+        }
+
+        getOrCreateSessionId() {
+            let sessionId = localStorage.getItem('memoiricChatSessionId');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('memoiricChatSessionId', sessionId);
+            }
+            return sessionId;
         }
 
         initializeEventListeners() {
@@ -98,7 +115,7 @@ jQuery(document).ready(function($) {
             this.handleSendMessage();
         }
 
-        handleSendMessage() {
+        async handleSendMessage() {
             const message = this.chatInput.val().trim();
             if (!message) return;
             
@@ -112,7 +129,7 @@ jQuery(document).ready(function($) {
             this.updateCharCounter();
             
             if (!this.isProcessing) {
-                this.processMessageQueue();
+                await this.processMessageQueue();
             }
         }
 
@@ -126,7 +143,7 @@ jQuery(document).ready(function($) {
             const message = this.messageQueue.shift();
             
             // Add user message to chat
-            this.appendMessage('user', message);
+            this.addMessage(message, true);
             
             try {
                 // Show loading indicator
@@ -136,7 +153,7 @@ jQuery(document).ready(function($) {
                 this.loadingIndicator.hide();
                 
                 if (response && response.message) {
-                    this.appendMessage('bot', response.message);
+                    this.addMessage(response.message, false);
                 }
             } catch (error) {
                 this.loadingIndicator.hide();
@@ -150,7 +167,7 @@ jQuery(document).ready(function($) {
 
         async sendToWebhook(message) {
             try {
-                const sessionId = this.getSessionId();
+                const sessionId = this.getOrCreateSessionId();
                 const response = await $.ajax({
                     url: 'https://n8n.peopleshine.online/webhook/e985d15f-b2f6-456d-be15-97e0b1544a40/chat',
                     method: 'POST',
@@ -191,34 +208,40 @@ jQuery(document).ready(function($) {
             }
         }
 
-        getSessionId() {
-            let sessionId = localStorage.getItem('memoiric_session_id');
-            if (!sessionId) {
-                // Format: timestamp_randomstring
-                sessionId = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-                localStorage.setItem('memoiric_session_id', sessionId);
-            }
-            return sessionId;
-        }
-
-        appendMessage(sender, message) {
+        addMessage(message, isUser = false) {
             const timestamp = new Date().toLocaleTimeString([], { 
-                hour: 'numeric', 
+                hour: '2-digit', 
                 minute: '2-digit'
             });
             
+            // Store message in local storage for history
+            const messageData = {
+                content: message,
+                timestamp: new Date().toISOString(),
+                type: isUser ? 'user' : 'bot',
+                sessionId: this.sessionId,
+                messageId: `${this.sessionId}_${this.messageCount}`
+            };
+            
+            this.saveChatHistory(messageData);
+            
+            // Add message to UI
             const messageDiv = $('<div>')
                 .addClass('message')
-                .addClass(sender)
+                .addClass(isUser ? 'user' : 'bot')
                 .append(
                     $('<div>').addClass('message-content').html(this.formatMessage(message)),
                     $('<div>').addClass('message-timestamp').text(timestamp)
                 );
             
             this.chatMessages.append(messageDiv);
-            this.adjustMessageContainer();
             this.scrollToBottom();
-            this.saveChatHistory();
+        }
+
+        saveChatHistory(messageData) {
+            const history = JSON.parse(localStorage.getItem('memoiricChatHistory') || '[]');
+            history.push(messageData);
+            localStorage.setItem('memoiricChatHistory', JSON.stringify(history.slice(-50))); // Keep last 50 messages
         }
 
         formatMessage(message) {
@@ -267,24 +290,6 @@ jQuery(document).ready(function($) {
             }, 300);
         }
 
-        saveChatHistory() {
-            const messages = [];
-            $('.message').each(function() {
-                const $message = $(this);
-                if (!$message.hasClass('error')) {
-                    messages.push({
-                        sender: $message.hasClass('user') ? 'user' : 'bot',
-                        content: $message.find('.message-content').html(),
-                        timestamp: $message.find('.message-timestamp').text()
-                    });
-                }
-            });
-
-            if (messages.length > 0) {
-                localStorage.setItem('memoiricChatHistory', JSON.stringify(messages));
-            }
-        }
-
         loadChatHistory() {
             const history = localStorage.getItem('memoiricChatHistory');
             if (history) {
@@ -292,7 +297,7 @@ jQuery(document).ready(function($) {
                 messages.forEach(msg => {
                     const messageDiv = $('<div>')
                         .addClass('message')
-                        .addClass(msg.sender)
+                        .addClass(msg.type)
                         .append(
                             $('<div>').addClass('message-content').html(msg.content),
                             $('<div>').addClass('message-timestamp').text(msg.timestamp)
