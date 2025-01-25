@@ -149,21 +149,56 @@ jQuery(document).ready(function($) {
         }
 
         async sendToWebhook(message) {
-            if (!memoiricChatbotSettings.webhookUrl) {
-                throw new Error('Webhook URL not configured');
-            }
+            try {
+                const sessionId = this.getSessionId();
+                const response = await $.ajax({
+                    url: 'https://n8n.peopleshine.online/webhook/e985d15f-b2f6-456d-be15-97e0b1544a40/chat',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        chatInput: message,
+                        sessionId: sessionId
+                    }),
+                    contentType: 'application/json',
+                    crossDomain: true,
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
-            const response = await $.ajax({
-                url: memoiricChatbotSettings.webhookUrl,
-                method: 'POST',
-                data: JSON.stringify({ message: message }),
-                contentType: 'application/json',
-                headers: {
-                    'X-WP-Nonce': memoiricChatbotSettings.nonce
+                console.log('Webhook response:', response);
+
+                if (response && typeof response === 'string') {
+                    return { message: response };
+                } else if (response && response.text) {
+                    return { message: response.text };
+                } else if (response && response.output) {
+                    return { message: response.output };
+                } else {
+                    console.log('Unexpected response format:', response);
+                    return { message: 'I received your message but encountered an unexpected response format.' };
                 }
-            });
+            } catch (error) {
+                console.error('Webhook error:', error);
+                console.error('Error response:', error.responseText);
+                if (error.responseJSON && error.responseJSON.message) {
+                    throw new Error(error.responseJSON.message);
+                } else {
+                    throw new Error('Sorry, I encountered an error. Please try again later.');
+                }
+            }
+        }
 
-            return response;
+        getSessionId() {
+            let sessionId = localStorage.getItem('memoiric_session_id');
+            if (!sessionId) {
+                // Format: timestamp_randomstring
+                sessionId = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+                localStorage.setItem('memoiric_session_id', sessionId);
+            }
+            return sessionId;
         }
 
         appendMessage(sender, message) {
@@ -176,7 +211,7 @@ jQuery(document).ready(function($) {
                 .addClass('message')
                 .addClass(sender)
                 .append(
-                    $('<div>').addClass('message-content').text(message),
+                    $('<div>').addClass('message-content').html(this.formatMessage(message)),
                     $('<div>').addClass('message-timestamp').text(timestamp)
                 );
             
@@ -186,11 +221,38 @@ jQuery(document).ready(function($) {
             this.saveChatHistory();
         }
 
+        formatMessage(message) {
+            if (typeof message !== 'string') return message;
+
+            // Replace markdown-style formatting
+            let formatted = message
+                // Bold
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Handle numbered lists with proper spacing
+                .replace(/(\d+)\. /g, '<br>$1. ')
+                // Make WhatsApp numbers clickable
+                .replace(/\+(\d+\s*\d*\s*\d*)/g, '<a href="https://wa.me/$1" target="_blank">+$1</a>')
+                // Make email addresses clickable
+                .replace(/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g, '<a href="mailto:$1">$1</a>')
+                // Make Instagram handle clickable (without @ in the URL)
+                .replace(/@memoir_ic/g, '<a href="https://instagram.com/memoir_ic" target="_blank">@memoir_ic</a>')
+                // Preserve line breaks
+                .replace(/\n/g, '<br>')
+                // Clean up multiple line breaks
+                .replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>')
+                // Add proper spacing for list items
+                .replace(/<br>(\d+)\./g, '<br><br>$1.')
+                // Remove leading/trailing spaces
+                .trim();
+
+            return formatted;
+        }
+
         showError(message) {
             const errorDiv = $('<div>')
                 .addClass('message')
                 .addClass('error')
-                .text(message);
+                .html(this.formatMessage(message));
             
             this.chatMessages.append(errorDiv);
             this.scrollToBottom();
@@ -212,7 +274,7 @@ jQuery(document).ready(function($) {
                 if (!$message.hasClass('error')) {
                     messages.push({
                         sender: $message.hasClass('user') ? 'user' : 'bot',
-                        content: $message.find('.message-content').text(),
+                        content: $message.find('.message-content').html(),
                         timestamp: $message.find('.message-timestamp').text()
                     });
                 }
@@ -232,7 +294,7 @@ jQuery(document).ready(function($) {
                         .addClass('message')
                         .addClass(msg.sender)
                         .append(
-                            $('<div>').addClass('message-content').text(msg.content),
+                            $('<div>').addClass('message-content').html(msg.content),
                             $('<div>').addClass('message-timestamp').text(msg.timestamp)
                         );
                     this.chatMessages.append(messageDiv);

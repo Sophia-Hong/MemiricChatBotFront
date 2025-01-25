@@ -4,7 +4,7 @@ defined('ABSPATH') or die('Direct access not allowed');
 <div id="memoiric-chat-trigger" class="chat-trigger">
     <div class="trigger-content">
         <img src="https://www.memoiric.com/wp-content/uploads/2024/04/Logo-03.png" alt="Memoiric Chat" class="trigger-logo">
-        <span>Chat with Moir</span>
+        <div class="chat-bubble">Hi!</div>
     </div>
 </div>
 

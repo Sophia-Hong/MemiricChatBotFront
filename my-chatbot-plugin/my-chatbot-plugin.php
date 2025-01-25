@@ -31,13 +31,20 @@ class MemoiricChatbot {
     }
 
     private function __construct() {
-        $this->init_hooks();
-        $this->settings = get_option('memoiric_chatbot_settings', [
-            'webhook_url' => '',
+        // Set default settings
+        $default_settings = array(
             'bot_name' => 'Moir',
             'welcome_message' => 'Hi, I\'m Moir! 👋',
-            'status_message' => 'Online & Ready to Chat'
-        ]);
+            'status_message' => 'Ready to chat'
+        );
+        
+        // Get existing settings or use defaults
+        $this->settings = get_option('memoiric_chatbot_settings', $default_settings);
+        
+        // Ensure all default keys exist
+        $this->settings = wp_parse_args($this->settings, $default_settings);
+        
+        $this->init_hooks();
     }
 
     private function init_hooks() {
@@ -49,25 +56,24 @@ class MemoiricChatbot {
 
     public function enqueue_scripts() {
         wp_enqueue_style(
-            'memoiric-chatbot-style',
-            MY_CHATBOT_PLUGIN_URL . 'css/chatbot.css',
+            'my-chatbot-style',
+            plugins_url('css/chatbot.css', __FILE__),
             array(),
-            MY_CHATBOT_VERSION
+            '1.0'
         );
 
         wp_enqueue_script(
-            'memoiric-chatbot-script',
-            MY_CHATBOT_PLUGIN_URL . 'js/chatbot.js',
+            'my-chatbot-script',
+            plugins_url('js/chatbot.js', __FILE__),
             array('jquery'),
-            MY_CHATBOT_VERSION,
+            '1.0',
             true
         );
 
         wp_localize_script(
-            'memoiric-chatbot-script',
+            'my-chatbot-script',
             'memoiricChatbotSettings',
             array(
-                'webhookUrl' => esc_url($this->settings['webhook_url']),
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('memoiric-chatbot-nonce'),
                 'botName' => sanitize_text_field($this->settings['bot_name']),
@@ -92,21 +98,13 @@ class MemoiricChatbot {
     }
 
     public function register_settings() {
-        register_setting('memoiric_chatbot_settings', 'memoiric_chatbot_settings');
+        register_setting('memoiric_chatbot_settings', 'memoiric_chatbot_settings', [$this, 'validate_settings']);
         
         add_settings_section(
             'memoiric_chatbot_main',
             'Main Settings',
             null,
             'memoiric-chatbot'
-        );
-
-        add_settings_field(
-            'webhook_url',
-            'Webhook URL',
-            [$this, 'render_webhook_url_field'],
-            'memoiric-chatbot',
-            'memoiric_chatbot_main'
         );
 
         add_settings_field(
@@ -138,11 +136,6 @@ class MemoiricChatbot {
         include MY_CHATBOT_PLUGIN_PATH . 'templates/admin-settings.php';
     }
 
-    public function render_webhook_url_field() {
-        $webhook_url = isset($this->settings['webhook_url']) ? $this->settings['webhook_url'] : '';
-        echo '<input type="url" name="memoiric_chatbot_settings[webhook_url]" value="' . esc_attr($webhook_url) . '" class="regular-text">';
-    }
-
     public function render_bot_name_field() {
         $bot_name = isset($this->settings['bot_name']) ? $this->settings['bot_name'] : 'Moir';
         echo '<input type="text" name="memoiric_chatbot_settings[bot_name]" value="' . esc_attr($bot_name) . '" class="regular-text">';
@@ -154,8 +147,29 @@ class MemoiricChatbot {
     }
 
     public function render_status_message_field() {
-        $status_message = isset($this->settings['status_message']) ? $this->settings['status_message'] : 'Online & Ready to Chat';
+        $status_message = isset($this->settings['status_message']) ? $this->settings['status_message'] : 'Ready to chat';
         echo '<input type="text" name="memoiric_chatbot_settings[status_message]" value="' . esc_attr($status_message) . '" class="regular-text">';
+    }
+
+    public function validate_settings($input) {
+        $new_input = array();
+        
+        // Validate bot name
+        $new_input['bot_name'] = isset($input['bot_name']) 
+            ? sanitize_text_field($input['bot_name'])
+            : 'Moir';
+            
+        // Validate welcome message
+        $new_input['welcome_message'] = isset($input['welcome_message'])
+            ? sanitize_text_field($input['welcome_message'])
+            : 'Hi, I\'m Moir! 👋';
+            
+        // Validate status message
+        $new_input['status_message'] = isset($input['status_message'])
+            ? sanitize_text_field($input['status_message'])
+            : 'Ready to chat';
+        
+        return $new_input;
     }
 }
 

@@ -167,12 +167,27 @@
     padding: 8px 12px;
     border-radius: 16px;
     font-size: 15px;
-    line-height: 1.4;
+    line-height: 1.6;
     word-wrap: break-word;
-    white-space: normal;
+    white-space: pre-line;
     font-family: var(--font-family);
     max-width: 80%;
     overflow-wrap: break-word;
+}
+
+.message-content strong {
+    font-weight: 600;
+    color: #2d3436;
+}
+
+.message-content a {
+    color: #6c5ce7;
+    text-decoration: none;
+    pointer-events: auto;
+}
+
+.message-content a:hover {
+    text-decoration: underline;
 }
 
 .message.user .message-content {
@@ -182,10 +197,22 @@
 }
 
 .message.bot .message-content {
-    background: var(--message-bg-bot);
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    max-width: 85%;
     color: var(--text-primary);
-    border-radius: 16px 16px 16px 4px;
     text-align: left;
+}
+
+.message-content br {
+    display: block;
+    margin: 5px 0;
+    content: "";
+}
+
+.message-content br + br {
+    margin: 12px 0;
 }
 
 .message-timestamp {
@@ -208,9 +235,21 @@
     border: 1px solid rgba(255, 59, 48, 0.2);
 }
 
+.predefined-messages {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 5px;
+}
+
+.predefined-message {
+    padding: 8px 15px;
+    margin-bottom: 8px;
+}
+
 .predefined-prompts {
     display: flex;
-    padding: 16px;
+    padding: 18px;
     gap: 12px;
     justify-content: center;
     align-items: center;
