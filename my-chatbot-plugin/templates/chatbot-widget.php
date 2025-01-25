@@ -9,6 +9,9 @@ defined('ABSPATH') or die('Direct access not allowed');
 </div>
 
 <div id="memoiric-chatbot-widget" class="my-chatbot-widget hidden">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
     <div class="chat-header">
         <div class="header-content">
             <img src="https://www.memoiric.com/wp-content/uploads/2024/04/Logo-03.png" alt="Memoiric Logo" class="chat-logo">
