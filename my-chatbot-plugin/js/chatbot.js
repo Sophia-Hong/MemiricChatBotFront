@@ -303,6 +303,88 @@ jQuery(document).ready(function($) {
                 this.scrollToBottom();
             }
         }
+
+        initializeDrag() {
+            const chatWidget = this.chatWidget;
+            const header = chatWidget.find('.chat-header');
+            
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            // Load saved position
+            const savedPosition = localStorage.getItem('memoiricChatPosition');
+            if (savedPosition) {
+                const { x, y } = JSON.parse(savedPosition);
+                xOffset = x;
+                yOffset = y;
+                this.setTranslate(xOffset, yOffset, chatWidget);
+            }
+
+            header.css('cursor', 'move');
+
+            header.on('mousedown touchstart', (e) => {
+                if (e.type === 'mousedown') {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                } else {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                }
+
+                if (e.target === header[0] || $(e.target).parents('.chat-header').length) {
+                    isDragging = true;
+                }
+            });
+
+            $(document).on('mousemove touchmove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+
+                    if (e.type === 'mousemove') {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    } else {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    }
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    this.setTranslate(currentX, currentY, chatWidget);
+                }
+            });
+
+            $(document).on('mouseup touchend', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    // Save position
+                    localStorage.setItem('memoiricChatPosition', JSON.stringify({ x: xOffset, y: yOffset }));
+                }
+            });
+        }
+
+        setTranslate(xPos, yPos, el) {
+            // Keep widget within viewport bounds
+            const windowWidth = $(window).width();
+            const windowHeight = $(window).height();
+            const widgetRect = el[0].getBoundingClientRect();
+
+            // Adjust xPos to keep widget within horizontal bounds
+            xPos = Math.min(xPos, windowWidth - widgetRect.width);
+            xPos = Math.max(xPos, 0);
+
+            // Adjust yPos to keep widget within vertical bounds
+            yPos = Math.min(yPos, windowHeight - widgetRect.height);
+            yPos = Math.max(yPos, 0);
+
+            el.css('transform', `translate3d(${xPos}px, ${yPos}px, 0)`);
+        }
     }
 
     // Initialize chatbot
